@@ -39,11 +39,6 @@ readline.emitKeypressEvents(process.stdin);
 process.stdin.on('keypress', (str, key = {}) => {
   if (!tuiActive) return;
 
-  if (key.ctrl && key.name === 'c') {
-    deliverKey({ name: 'c', ctrl: true });
-    return;
-  }
-
   const name = key.name;
   if (name || str) deliverKey({ name, str });
 });
@@ -61,13 +56,11 @@ function deliverKey(key) {
 function readKey() {
   if (keyQueue.length) {
     const key = keyQueue.shift();
-    if (key.ctrl && key.name === 'c') throw new ExitApp();
     return Promise.resolve(key);
   }
   return new Promise((resolve, reject) => {
     pendingKey = (key) => {
-      if (key.ctrl && key.name === 'c') reject(new ExitApp());
-      else resolve(key);
+      resolve(key);
     };
   });
 }
@@ -249,7 +242,6 @@ async function pickFile(title) {
     drawLines(lines.slice(0, height));
 
     const key = await readKey();
-    if (key.ctrl && key.name === 'c') throw new ExitApp();
     if (key.name === 'up') index = (index - 1 + files.length) % files.length;
     else if (key.name === 'down') index = (index + 1) % files.length;
     else if (key.name === 'return') return files[index];
@@ -346,7 +338,20 @@ async function renameFile() {
 // GIT PUSH / STATUS
 // =========================
 async function gitPush() {
-  await runExternal('bash', ['-c', "git add . && git commit -m 'update' && git push"]);
+  const repoRoot = path.join(os.homedir(), 'storage', 'shared', 'Code');
+  const command = `cd "${repoRoot}" || exit 1
+if ! git diff --cached --quiet; then
+  echo "Error: staged changes already exist; commit them first."
+  exit 1
+fi
+git add -A -- JavaScript/ || exit 1
+if git diff --cached --quiet; then
+  echo "JavaScript: no changes to push."
+  exit 0
+fi
+git commit -m "update JavaScript" || exit 1
+git push origin "$(git branch --show-current)"`;
+  await runExternal('bash', ['-c', command]);
 }
 
 async function gitStatus() {
@@ -395,11 +400,10 @@ async function main() {
     });
 
     while (lines.length < height - 2) lines.push('');
-    lines.push('  ↑ ↓ move | Enter select | Ctrl+C exit');
+    lines.push('  ↑ ↓ move | Enter select');
     drawLines(lines.slice(0, height));
 
     const key = await readKey();
-    if (key.ctrl && key.name === 'c') throw new ExitApp();
     if (key.name === 'up') index = (index - 1 + OPTIONS.length) % OPTIONS.length;
     else if (key.name === 'down') index = (index + 1) % OPTIONS.length;
     else if (key.name === 'return') {
@@ -436,8 +440,8 @@ async function start() {
     if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
       try { process.stdin.setRawMode(false); } catch {}
     }
-    process.stdout.write(`${ESC}[?25h`);
     clearScreen();
+    process.stdout.write(`${ESC}[?25l`);
     process.stdin.pause();
   }
 }

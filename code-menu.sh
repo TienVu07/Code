@@ -71,10 +71,11 @@ while true; do
       printf '\033[?25l'
       ;;
     Terminal)
-      printf "\033[?25h"
-      clear_screen
-      bash -i
-      printf "\033[?25l"
+      printf '\033[?25h'
+      stty sane
+      clear
+      CODE_TERMINAL=1 bash -i
+      printf '\033[?25l'
       ;;
     Exit)
       clear_screen

@@ -278,15 +278,21 @@ def rename_file(stdscr):
 # GIT PUSH
 # =========================
 def git_push(stdscr):
-    run_external(
-        stdscr,
-        (
-            f"cd '{WORKDIR}' && "
-            f"git add . && "
-            f"git commit -m 'update' && "
-            f"git push"
-        )
+    repo_root = Path.home() / "storage/shared/Code"
+    command = (
+        f"cd '{repo_root}' && "
+        "if ! git diff --cached --quiet; then "
+        "echo 'Error: staged changes already exist; commit them first.'; "
+        "exit 1; fi && "
+        "git add -A -- Python/ && "
+        "if git diff --cached --quiet; then "
+        "echo 'Python: no changes to push.'; "
+        "else "
+        "git commit -m 'update Python' && "
+        "git push origin \"$(git branch --show-current)\"; "
+        "fi"
     )
+    run_external(stdscr, command)
 
 
 # =========================

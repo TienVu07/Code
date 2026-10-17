@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bai tap Html</title>
+</head>
+
+<body>
+    <h1>Don Gia nhap hoi fan cuong doi tuyen bong da Viet Nam</h1>
+    <p>
+        chao mung den voi hoi bong da
+    </p>
+    <form>
+        <label for="fullname">Ho va Ten:</label>
+        
+        <br>
+
+        <input 
+            type="text" 
+            id="fullname" 
+            name="fullname" 
+            required 
+            placeholder="Nguyen Van A" 
+            size="20px"
+        >
+        
+        <br>
+        <br>
+        
+        <label for="email">Email:</label>
+        
+        <br>
+        
+        <input 
+            type="email"
+            id="email"
+            name="email"
+            required
+            placeholder="abc123@email.com"
+            size="20px"
+        >
+        
+        <br>
+        <br>
+        
+        <label for="story">Cam Xuc:</label>
+        <br>
+        
+        <textarea 
+            id="story" 
+            name="story"
+            placeholder="Nhap Cam Xuc Cua Ban."
+            rows="5"
+            cols="50"
+            spellcheck
+            ></textarea>
+
+        <br>
+        <br>
+        
+        <fieldset style="width: 200px">
+            <legend>Gioi Tinh Cua Ban</legend>
+            <label for="male">
+                <input
+                    id="male"
+                    name="gender"
+                    value="male"
+                    type="radio"
+                >Nam
+            </label>
+            <br>
+            
+            <label for="female">
+                <input
+                    id="female"
+                    name="gender"
+                    value="female"
+                    type="radio"
+                >Nu
+            </label>
+            <br>
+            <label for="other">
+                <input
+                    id="other"
+                    name="gender"
+                    value="other"
+                    type="radio"
+                >Khac
+            </label>
+        </fieldset>
+
+    </form>
+</body>
+
+</html>

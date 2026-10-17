@@ -5,8 +5,17 @@ from pathlib import Path
 # =========================
 # CONFIG
 # =========================
-WORKDIR = Path.home() / "storage/shared/Code/Python/src"
-WORKDIR.mkdir(parents=True, exist_ok=True)
+ROOT = Path.home() / "storage/shared/Code/Python"
+
+FOLDERS = {
+    "src": ROOT / "src",
+    "projects": ROOT / "projects",
+}
+
+for folder in FOLDERS.values():
+    folder.mkdir(parents=True, exist_ok=True)
+
+WORKDIR = FOLDERS["projects"]
 
 OPTIONS = [
     "Run Python file",
@@ -16,8 +25,9 @@ OPTIONS = [
     "Rename file",
     "Git Push",
     "Git Status",
-    "File list",
-    "Back"
+    "File List",
+    "Switch Folder",
+    "Terminal"
 ]
 
 
@@ -278,21 +288,15 @@ def rename_file(stdscr):
 # GIT PUSH
 # =========================
 def git_push(stdscr):
-    repo_root = Path.home() / "storage/shared/Code"
-    command = (
-        f"cd '{repo_root}' && "
-        "if ! git diff --cached --quiet; then "
-        "echo 'Error: staged changes already exist; commit them first.'; "
-        "exit 1; fi && "
-        "git add -A -- Python/ && "
-        "if git diff --cached --quiet; then "
-        "echo 'Python: no changes to push.'; "
-        "else "
-        "git commit -m 'update Python' && "
-        "git push origin \"$(git branch --show-current)\"; "
-        "fi"
+    run_external(
+        stdscr,
+        (
+            f"cd '{WORKDIR}' && "
+            f"git add . && "
+            f"git commit -m 'update' && "
+            f"git push"
+        )
     )
-    run_external(stdscr, command)
 
 
 # =========================
@@ -339,6 +343,45 @@ def file_list(stdscr):
 
     stdscr.getch()
 
+# =========================
+# SWITCH FOLDER
+# ========================
+
+def switch_folder(stdscr):
+    global WORKDIR
+
+    folders = list(FOLDERS.items())
+    idx = next(
+        i for i, (_, path) in enumerate(folders)
+        if path == WORKDIR
+    )
+
+    while True:
+        stdscr.clear()
+        stdscr.addstr(1, 2, "SELECT FOLDER", curses.A_BOLD)
+
+        for i, (name, path) in enumerate(folders):
+            prefix = "> " if i == idx else "  "
+            attr = curses.A_REVERSE if i == idx else curses.A_NORMAL
+            stdscr.addstr(3 + i, 4, prefix + name + "/", attr)
+
+        stdscr.addstr(
+            3 + len(folders) + 1,
+            2,
+            "Enter select | q cancel"
+        )
+
+        key = stdscr.getch()
+
+        if key == curses.KEY_UP:
+            idx = (idx - 1) % len(folders)
+        elif key == curses.KEY_DOWN:
+            idx = (idx + 1) % len(folders)
+        elif key in (10, 13):
+            WORKDIR = folders[idx][1]
+            return
+        elif key == ord("q"):
+            return
 
 # =========================
 # MAIN MENU
@@ -417,11 +460,14 @@ def main(stdscr):
             elif choice == "Git Status":
                 git_status(stdscr)
 
-            elif choice == "File list":
+            elif choice == "File List":
                 file_list(stdscr)
+            
+            elif choice == "Switch Folder":
+                switch_folder(stdscr)
 
-            elif choice == "Back":
-                return
+            elif choice == "Terminal":
+                terminal(stdscr)
 
 
 # =========================

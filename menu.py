@@ -81,7 +81,7 @@ def run_external(stdscr, cmd, wait=True):
 def terminal(stdscr):
     run_external(
         stdscr,
-        "bash",
+        "IN_PYTHON_IDE=1 bash",
         wait=False
     )
 
@@ -397,28 +397,33 @@ def main(stdscr):
         stdscr.clear()
 
         h, w = stdscr.getmaxyx()
-
+        
+        start_y = h // 5 + 2
+        start_x = w // 8
+        
         stdscr.addstr(
-            1,
-            2,
-            "PYTHON IDE",
+            start_y - 1,
+            start_x + 5,
+            "PYTHON IDE🐍",
             curses.A_BOLD
         )
 
         for i, opt in enumerate(OPTIONS):
+            y = start_y + 2 + i
+            x = start_x + 2
             line = opt[: w - 10]
 
             if i == idx:
                 stdscr.addstr(
-                    3 + i,
-                    4,
+                    y,
+                    x,
                     f"> {line}",
                     curses.A_REVERSE
                 )
             else:
                 stdscr.addstr(
-                    3 + i,
-                    4,
+                    y,
+                    x,
                     f"  {line}"
                 )
 

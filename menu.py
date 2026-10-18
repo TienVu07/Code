@@ -15,7 +15,7 @@ FOLDERS = {
 for folder in FOLDERS.values():
     folder.mkdir(parents=True, exist_ok=True)
 
-WORKDIR = FOLDERS["projects"]
+WORKDIR = FOLDERS["src"]
 
 OPTIONS = [
     "Run Python file",
@@ -402,10 +402,17 @@ def main(stdscr):
         start_x = w // 8
         
         stdscr.addstr(
-            start_y - 1,
-            start_x + 5,
+            start_y - 2,
+            start_x + 4,
             "PYTHON IDE🐍",
             curses.A_BOLD
+        )
+        
+        stdscr.addstr(
+            start_y - 1,
+            start_x + 4,
+            f"DIR: {WORKDIR.name}",
+            curses.A_DIM
         )
 
         for i, opt in enumerate(OPTIONS):

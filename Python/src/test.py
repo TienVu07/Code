@@ -1,7 +1,6 @@
-def phepcong():
-    so1 = int(input("nhap so thu nhat:"))
-    so2 = int(input("nhap so thu hai:"))
-    tong = so1 + so2
+a = 0
+b = 1
 
-    print(tong)
-
+while b < 100:
+    print(b)
+    a,b = b,a + b
